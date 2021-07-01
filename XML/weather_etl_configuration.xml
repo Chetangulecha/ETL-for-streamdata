@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<etl    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.etl.org/etlSchema"
+        xsi:schemaLocation="http://www.etl.org/etlSchema ../schemaAndXML/ETLSchema.xsd">
+
+    <extract>
+        <csv-extract sourceId="S1">
+            <file-path>./datafiles/weather.csv</file-path>
+            <separator>,</separator>
+            <windowsize>100</windowsize>
+        </csv-extract>
+        <csv-extract sourceId="S2">
+            <file-path>./datafiles/weather_morn_after.csv</file-path>
+            <separator>,</separator>
+            <windowsize>100</windowsize>
+        </csv-extract>
+    </extract>
+    
+    <transformations>
+
+        <!-- NA nalues replaced with blank values -->
+        <mapping>
+            <input inputId="I5" sourceId="S1">Sunshine</input>
+            <output outputId="O4"></output>
+            <map>
+                <from>NA</from>
+                <to>NaN</to>
+            </map>
+        </mapping>
+        <mapping>
+            <input inputId="I6" sourceId="S1">WindGustDir</input>
+            <output outputId="O5"></output>
+            <map>
+                <from>NA</from>
+                <to>NaN</to>
+            </map>
+        </mapping>
+        <mapping>
+            <input inputId="I7" sourceId="S1">WindGustSpeed</input>
+            <output outputId="O6"></output>
+            <map>
+                <from>NA</from>
+                <to>NaN</to>
+            </map>
+        </mapping>
+        <mapping>
+            <input inputId="I8" sourceId="S2">WindDir9am</input>
+            <output outputId="O7"></output>
+            <map>
+                <from>NA</from>
+                <to>NaN</to>
+            </map>
+        </mapping>
+        <mapping>
+            <input inputId="I9" sourceId="S2">WindDir3pm</input>
+            <output outputId="O8"></output>
+            <map>
+                <from>NA</from>
+                <to>NaN</to>
+            </map>
+        </mapping>
+        <mapping>
+            <input inputId="I19" sourceId="S2">WindSpeed9am</input>
+            <output outputId="O9"></output>
+            <map>
+                <from>NA</from>
+                <to>NaN</to>
+            </map>
+        </mapping>
+        
+
+        <conversion>
+            <formula>
+                <input inputId="I1" sourceId="S1">MinTemp</input>
+                <input inputId="I2" sourceId="S1">MaxTemp</input>
+                <output outputId="O1"></output>
+                <expression>( ( @I1 + @I2 ) / #2 )</expression>
+            </formula>
+        </conversion>
+
+        <mapping>
+            <input inputId="I3" sourceId="S1">RainToday</input>
+            <output outputId="O2"></output>
+            <map>
+                <from>Yes</from>
+                <to>1</to>
+            </map>
+            <map>
+                <from>No</from>
+                <to>0</to>
+            </map>
+        </mapping>
+        
+        <mapping>
+            <input inputId="I4" sourceId="S1">RainTomorrow</input>
+            <output outputId="O3"></output>
+            <map>
+                <from>Yes</from>
+                <to>1</to>
+            </map>
+            <map>
+                <from>No</from>
+                <to>0</to>
+            </map>
+        </mapping>
+
+    </transformations>
+
+    <load>
+         
+        <db-load>
+            <database>MYSQL</database>
+            <hostname>localhost</hostname>
+            <username>root</username>
+            <password>Bhavesh@123</password>
+            <database-name>WeatherDB</database-name>
+            <table-name>basic_weather</table-name>
+            <output>
+                <field sourceId="S1">
+                    <field-name>Id</field-name>
+                    <field-source>Id</field-source>
+                </field> 
+                <field sourceId="S1">
+                    <field-name>MinTemperature</field-name>
+                    <field-source>MinTemp</field-source>
+                </field>
+                <field sourceId="S1">
+                    <field-name>MaxTemperature</field-name>
+                    <field-source>MaxTemp</field-source>
+                </field>
+                <field>
+                    <field-name>AvgTemp</field-name>
+                    <field-source>O1</field-source>
+                </field>
+                <field sourceId="S1">
+                    <field-name>Rainfall</field-name>
+                    <field-source>Rainfall</field-source>
+                </field>
+                <field sourceId="S1">
+                    <field-name>Evaporation</field-name>
+                    <field-source>Evaporation</field-source>
+                </field>
+                <field>
+                    <field-name>Sunshine</field-name>
+                    <field-source>O4</field-source>
+                </field>
+                <field>
+                    <field-name>WindGustDir</field-name>
+                    <field-source>O5</field-source>
+                </field>
+                <field>
+                    <field-name>WindGustSpeed</field-name>
+                    <field-source>O6</field-source>
+                </field>
+                 <field>
+                     <field-name>RainToday</field-name>
+                     <field-source>O2</field-source>
+                 </field>
+                 <field>
+                     <field-name>RainTomorrow</field-name>
+                     <field-source>O3</field-source>
+                 </field>
+                 <field sourceId="S1">
+                     <field-name>RiskMM</field-name>
+                     <field-source>RISK_MM</field-source>
+                 </field>
+            </output>
+        </db-load>
+
+        <db-load>
+            <database>MYSQL</database>
+            <hostname>localhost</hostname>
+            <username>root</username>
+            <password>Bhavesh@123</password>
+            <database-name>WeatherDB</database-name>
+            <table-name>morning_weather</table-name>
+            <output>
+                <field sourceId="S2">
+                    <field-name>Id</field-name>
+                    <field-source>Id</field-source>
+                </field>
+                <field>
+                    <field-name>WindDirection</field-name>
+                    <field-source>O7</field-source>
+                </field>
+                <field>
+                    <field-name>WindSpeed</field-name>
+                    <field-source>O9</field-source>
+                </field>
+                <field sourceId="S2">
+                    <field-name>Humidity</field-name>
+                    <field-source>Humidity9am</field-source>
+                </field>
+                <field sourceId="S2">
+                    <field-name>Pressure</field-name>
+                    <field-source>Pressure9am</field-source>
+                </field>
+                <field sourceId="S2">
+                    <field-name>Cloud</field-name>
+                    <field-source>Cloud9am</field-source>
+                </field>
+                <field sourceId="S2">
+                    <field-name>Temperature</field-name>
+                    <field-source>Temp9am</field-source>
+                </field>
+                
+            </output>
+        </db-load>
+
+        <db-load>
+            <database>MYSQL</database>
+            <hostname>localhost</hostname>
+            <username>root</username>
+            <password>Bhavesh@123</password>
+            <database-name>WeatherDB</database-name>
+            <table-name>afternoon_weather</table-name>
+            <output>
+                <field sourceId="S2">
+                    <field-name>Id</field-name>
+                    <field-source>Id</field-source>
+                </field>
+                <field>
+                    <field-name>WindDirection</field-name>
+                    <field-source>O8</field-source>
+                </field>
+                <field sourceId="S2">
+                    <field-name>WindSpeed</field-name>
+                    <field-source>WindSpeed3pm</field-source>
+                </field>
+                <field sourceId="S2">
+                    <field-name>Humidity</field-name>
+                    <field-source>Humidity3pm</field-source>
+                </field>
+                <field sourceId="S2">
+                    <field-name>Pressure</field-name>
+                    <field-source>Pressure3pm</field-source>
+                </field>
+                <field sourceId="S2">
+                    <field-name>Cloud</field-name>
+                    <field-source>Cloud3pm</field-source>
+                </field>
+                <field sourceId="S2">
+                    <field-name>Temperature</field-name>
+                    <field-source>Temp3pm</field-source>
+                </field>                
+            </output>
+        </db-load>
+        
+    </load>
+</etl>

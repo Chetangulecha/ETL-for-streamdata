@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<etl    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.etl.org/etlSchema"
+        xsi:schemaLocation="http://www.etl.org/etlSchema ../schemaAndXML/ETLSchema.xsd">
+
+    <extract>
+        <csv-extract sourceId="S1">
+            <file-path>./datafiles/Salaries_India.csv</file-path>
+            <separator>,</separator>
+            <windowsize>5</windowsize>
+        </csv-extract>
+        <csv-extract sourceId="S2">
+            <file-path>./datafiles/Salaries_US.csv</file-path>
+            <separator>,</separator>
+            <windowsize>5</windowsize>
+        </csv-extract>
+    </extract>
+    
+    <transformations>
+        
+        <lookup>
+            <input inputId="I99" sourceId="S1">Year</input>
+            <output outputId="O99">O99</output>
+            <lookup-source>
+                <source-key>
+                    <input inputId="I98" sourceId="S2">Year</input>
+                </source-key>
+                <source-value>
+                    <input inputId="I97" sourceId="S2">year_name</input>
+                </source-value>
+            </lookup-source>
+        </lookup>
+         
+        <!--Operations done for source 1 --> 
+        <mapping>
+            <input inputId="I1" sourceId="S1">BasePay</input>
+            <output outputId="O1">mapped_base_pay</output>
+            <map>
+                <from>Not Provided</from>
+                <to>NaN</to>
+            </map>
+        </mapping>
+        <mapping>
+            <input inputId="I2" sourceId="S1">OvertimePay</input>
+            <output outputId="O2">mapped_overtime_pay</output>
+            <map>
+                <from>Not Provided</from>
+                <to>NaN</to>
+            </map>
+        </mapping>
+        
+        <conversion>
+            <formula>
+                <input inputId="I3">O1</input>
+                <input inputId="I4">O2</input>
+                <output outputId="O3">ExtraPayment</output>
+                <expression>( ( @I3 + ( @I4 / #100 ) ) * #0.002 )</expression>
+            </formula>
+            <formula>
+                <input inputId="I5">O3</input>
+                <input inputId="I6" sourceId="S1">TotalPay</input>
+                <output outputId="O4">FinalPayment</output>
+                <expression>( @I5 + @I6 )</expression>
+            </formula>
+            <floor>
+                <input inputId="I7">O4</input>
+                <output outputId="O5">floored_finalPayment</output>
+            </floor>
+            <power>
+                <input inputId="I8">O5</input>
+                <output outputId="O6">Power column</output>
+                <power-value>2.0</power-value>
+            </power>
+        </conversion>  
+        
+        <mapping>
+            <input inputId="I21" sourceId="S2">BasePay</input>
+            <output outputId="O21">mapped_base_pay</output>
+            <map>
+                <from>Not Provided</from>
+                <to>NaN</to>
+            </map>
+        </mapping>
+        <mapping>
+            <input inputId="I22" sourceId="S2">OvertimePay</input>
+            <output outputId="O22">mapped_overtime_pay</output>
+            <map>
+                <from>Not Provided</from>
+                <to>NaN</to>
+            </map>
+        </mapping>
+        
+        <conversion>
+            <formula>
+                <input inputId="I23">O21</input>
+                <input inputId="I24">O22</input>
+                <output outputId="O23">ExtraPayment</output>
+                <expression>( ( @I23 + ( @I24 / #100 ) ) * #0.002 )</expression>
+            </formula>
+            <formula>
+                <input inputId="I25">O3</input>
+                <input inputId="I26" sourceId="S2">TotalPay</input>
+                <output outputId="O24">FinalPayment</output>
+                <expression>( @I25 + @I26 )</expression>
+            </formula>
+            <floor>
+                <input inputId="I27">O24</input>
+                <output outputId="O25">floored_finalPayment</output>
+            </floor>
+            <power>
+                <input inputId="I28">O25</input>
+                <output outputId="O26">Power column</output>
+                <power-value>2.0</power-value>
+            </power>
+        </conversion>  
+        
+        <merge>
+            <input inputId="I51" sourceId="S1">Id</input>
+            <input inputId="I52" sourceId="S2">Id</input>
+            <output outputId="O51">Id</output>
+        </merge>
+        <merge>
+            <input inputId="I53" sourceId="S1">EmployeeName</input>
+            <input inputId="I54" sourceId="S2">EmployeeName</input>
+            <output outputId="O52">EmployeeName</output>
+        </merge>
+        <merge>
+            <input inputId="I55" sourceId="S1">JobTitle</input>
+            <input inputId="I56" sourceId="S2">JobTitle</input>
+            <output outputId="O53">JobTitle</output>
+        </merge>
+        <merge>
+            <input inputId="I57" sourceId="S1">TotalPay</input>
+            <input inputId="I58" sourceId="S2">TotalPay</input>
+            <output outputId="O54">TotalPay</output>
+        </merge>
+        <merge>
+            <input inputId="I59">O4</input>
+            <input inputId="I60">O24</input>
+            <output outputId="O55">TotalPay</output>
+        </merge>
+    </transformations>
+
+    <load>
+        <!-- <csv-load>
+            <file-name>ProcessedSalaryFile.csv</file-name>
+            <separator>,</separator>
+            <output>
+                <field sourceId="S1">
+                    <field-name>EmployeeId</field-name>
+                    <field-source>Id</field-source>
+                </field>
+                <field>
+                    <field-name>ExtraPayment</field-name>
+                    <field-source>O3</field-source>
+                </field>
+                <field>
+                    <field-name>FinalPayment</field-name>
+                    <field-source>O6</field-source>
+                </field>
+                <field sourceId="S1">
+                    <field-name>Yr</field-name>
+                    <field-source>Year</field-source>
+                </field>
+                <field>
+                    <field-name>Year_name</field-name>
+                    <field-source>O99</field-source>
+                </field>
+                
+            </output>
+        </csv-load> -->
+         
+        
+        <db-load>
+            <database>MYSQL</database>
+            <hostname>localhost</hostname>
+            <username>root</username>
+            <password>Bhavesh@123</password>
+            <database-name>sampleTestDB</database-name>
+            <table-name>salaries_table</table-name>
+            <output>
+                <field>
+                    <field-name>id</field-name>
+                    <field-source>O51</field-source>
+                </field>
+                <field>
+                    <field-name>employeeName</field-name>
+                    <field-source>O52</field-source>
+                </field>
+                <field>
+                    <field-name>jobTitle</field-name>
+                    <field-source>O53</field-source>
+                </field>
+                <field>
+                    <field-name>totalpay</field-name>
+                    <field-source>O54</field-source>
+                </field>
+                <field>
+                    <field-name>finalPayment</field-name>
+                    <field-source>O55</field-source>
+                </field>
+            </output>
+        </db-load>
+        
+    </load>
+</etl>

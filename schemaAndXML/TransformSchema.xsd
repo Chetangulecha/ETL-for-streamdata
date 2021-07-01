@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema  xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+            xmlns="http://www.etl.org/etlSchema"
+            targetNamespace="http://www.etl.org/etlSchema"
+            elementFormDefault="qualified">
+
+<!--basic input for transformations -->
+<xs:element name="input">
+  <xs:complexType>
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="sourceId" type="xs:string" use="optional"></xs:attribute>
+        <xs:attribute name="inputId" type="xs:ID" use="required"></xs:attribute>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+</xs:element>
+
+<!--basic output for transformations -->
+<xs:element name="output">
+  <xs:complexType>
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="outputId" type="xs:ID" use="required"></xs:attribute>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+</xs:element>
+
+<!--mapping transformations -->
+<xs:element name="mapping">
+  <xs:complexType>
+    <xs:sequence>
+      <xs:element ref="input"></xs:element>
+      <xs:element ref="output"></xs:element>
+      <xs:element name="map" maxOccurs="unbounded">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="from" type="xs:string"></xs:element>
+            <xs:element name="to" type="xs:string"></xs:element>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+</xs:element>
+
+<xs:element name="floor">
+  <xs:complexType>
+    <xs:sequence>
+      <xs:element ref="input"></xs:element>
+      <xs:element ref="output"></xs:element>
+    </xs:sequence>
+  </xs:complexType>
+</xs:element>
+
+<xs:element name="ceil">
+  <xs:complexType>
+    <xs:sequence>
+      <xs:element ref="input"></xs:element>
+      <xs:element ref="output"></xs:element>
+    </xs:sequence>
+  </xs:complexType>
+</xs:element>
+
+<xs:element name="power">
+  <xs:complexType>
+    <xs:sequence>
+      <xs:element ref="input"></xs:element>
+      <xs:element ref="output"></xs:element>
+      <xs:element name="power-value" type="xs:float"></xs:element>
+    </xs:sequence>
+  </xs:complexType>
+</xs:element>
+
+<xs:element name="formula">
+    <xs:complexType>
+        <xs:sequence>
+            <xs:element ref="input" minOccurs="0" maxOccurs="unbounded"></xs:element>
+            <xs:element ref="output"></xs:element>
+            <xs:element name="expression" type="xs:string"></xs:element>
+        </xs:sequence>
+    </xs:complexType>
+</xs:element>
+
+<!--Conversion transformations -->
+<!-- @ for variable -->
+<!-- # for constants -->
+<!-- operators -->
+<xs:element name="conversion">
+  <xs:complexType>
+    <xs:choice maxOccurs="unbounded">
+      <xs:element ref="formula"></xs:element>
+      <xs:element ref="floor"></xs:element>
+      <xs:element ref="ceil"></xs:element>
+      <xs:element ref="power"></xs:element>
+    </xs:choice>
+  </xs:complexType>
+</xs:element>
+
+<xs:element name="lookup">
+  <xs:complexType>
+    <xs:sequence>
+      <xs:element ref="input"></xs:element>
+      <xs:element ref="output"></xs:element>
+      <xs:element name="lookup-source">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="source-key">
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element ref="input"></xs:element>
+                </xs:sequence>
+              </xs:complexType>
+            </xs:element>
+            <xs:element name="source-value">
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element ref="input"></xs:element>
+                </xs:sequence>
+              </xs:complexType>
+            </xs:element>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+</xs:element>
+
+<xs:element name="merge">
+  <xs:complexType>
+    <xs:sequence>
+      <xs:element ref="input" minOccurs="2" maxOccurs="unbounded"></xs:element>
+      <xs:element ref="output"></xs:element>
+    </xs:sequence>
+  </xs:complexType>
+</xs:element>
+ 
+        
+</xs:schema>

@@ -1,0 +1,54 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema  xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+            xmlns="http://www.etl.org/etlSchema"
+            targetNamespace="http://www.etl.org/etlSchema"
+            elementFormDefault="qualified">
+
+<xs:include schemaLocation="./ExtractSchema.xsd"/>
+<xs:include schemaLocation="./TransformSchema.xsd"/>
+<xs:include schemaLocation="./LoadSchema.xsd"/>
+
+
+<xs:element name="etl">
+  <xs:complexType>
+    <xs:sequence>
+      
+      <!-- Contains all extract operations which columns to extract-->
+      <xs:element name="extract">
+        <xs:complexType>
+          <xs:choice maxOccurs="unbounded">
+            <xs:element ref="db-extract"></xs:element>
+            <xs:element ref="csv-extract"></xs:element>
+          </xs:choice>
+        </xs:complexType>
+      </xs:element>
+
+      <!-- contains all transform operation-->
+      <xs:element name="transformations">
+        <xs:complexType>
+          <xs:choice maxOccurs="unbounded">
+            <xs:element ref="mapping"></xs:element>
+            <xs:element ref="conversion"></xs:element>
+            <xs:element ref="lookup"></xs:element>
+            <xs:element ref="merge"></xs:element>
+          </xs:choice>
+        </xs:complexType>
+      </xs:element>
+
+
+      <!-- contains all load operations-->
+      <xs:element name="load">
+        <xs:complexType>
+          <xs:choice maxOccurs="unbounded">
+            <xs:element ref="csv-load"></xs:element>
+            <xs:element ref="db-load"></xs:element>
+          </xs:choice>
+        </xs:complexType>
+      </xs:element>
+    
+    </xs:sequence>
+  </xs:complexType>
+</xs:element> 
+  
+  
+</xs:schema>

@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<etl    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.etl.org/etlSchema"
+        xsi:schemaLocation="http://www.etl.org/etlSchema ../schemaAndXML/ETLSchema.xsd">
+
+    <extract>
+        <csv-extract sourceId="S1">
+            <file-path>./datafiles/covid1.csv</file-path>
+            <separator>,</separator>
+            <windowsize>10</windowsize>
+        </csv-extract>
+        <csv-extract sourceId="S2">
+            <file-path>./datafiles/covid2.csv</file-path>
+            <separator>,</separator>
+            <windowsize>5</windowsize>
+        </csv-extract>
+    </extract>
+    
+    <transformations>
+
+       <mapping>
+            <input inputId="I1" sourceId="S1">new_cases</input>
+            <output outputId="O1">mapped_new_Cases</output>
+            <map>
+                <from>NA</from>
+                <to>0</to>
+            </map>
+        </mapping>
+        <mapping>
+            <input inputId="I2" sourceId="S1">new_deaths</input>
+            <output outputId="O2">mapped_new_deaths</output>
+            <map>
+                <from>NA</from>
+                <to>0</to>
+            </map>
+        </mapping>
+        <mapping>
+            <input inputId="I21" sourceId="S2">new_cases</input>
+            <output outputId="O21">mapped_new_Cases</output>
+            <map>
+                <from>NA</from>
+                <to>0</to>
+            </map>
+        </mapping>
+        <mapping>
+            <input inputId="I21" sourceId="S2">new_deaths</input>
+            <output outputId="O22">mapped_new_deaths</output>
+            <map>
+                <from>NA</from>
+                <to>0</to>
+            </map>
+        </mapping>
+        
+
+        <conversion>
+            <formula>
+                <input inputId="I3" >O1</input>
+                <input inputId="I4" >O2</input>
+                <output outputId="O3">death_newcases_percent</output>
+                <expression>( ( @I4 / @I3 ) * #100 )</expression>
+            </formula>
+        </conversion>
+        <conversion>
+            <formula>
+                <input inputId="I5" >O21</input>
+                <input inputId="I6" >O22</input>
+                <output outputId="O4">death_newcases_percent</output>
+                <expression>( ( @I6 / @I5 ) * #100 )</expression>
+            </formula>
+        </conversion>
+        <mapping>
+            <input inputId="I333" sourceId="S1">tests_units</input>
+            <output outputId="O333"></output>
+            <map>
+                <from>tests performed</from>
+                <to>1</to>
+            </map>
+            <map>
+                <from>samples tested</from>
+                <to>0</to>
+            </map>
+        </mapping>
+        <mapping>
+            <input inputId="I334" sourceId="S2">tests_units</input>
+            <output outputId="O334"></output>
+            <map>
+                <from>tests performed</from>
+                <to>1</to>
+            </map>
+            <map>
+                <from>samples tested</from>
+                <to>0</to>
+            </map>
+        </mapping>
+        <merge>
+            <input inputId="I51" sourceId="S1">iso_code</input>
+            <input inputId="I52" sourceId="S2">iso_code</input>
+            <output outputId="O51">iso_code</output>
+        </merge>
+        <merge>
+            <input inputId="I53" sourceId="S1">continent</input>
+            <input inputId="I54" sourceId="S2">continent</input>
+            <output outputId="O52">continent</output>
+        </merge>
+        <merge>
+            <input inputId="I55" sourceId="S1">location</input>
+            <input inputId="I56" sourceId="S2">location</input>
+            <output outputId="O53">location</output>
+        </merge>
+        
+        <merge>
+            <input inputId="I59">O3</input>
+            <input inputId="I60">O4</input>
+            <output outputId="O54">death_newcases_percent</output>
+        </merge>
+        <merge>
+            <input inputId="I61" sourceId="S1">total_cases</input>
+            <input inputId="I62" sourceId="S2">total_cases</input>
+            <output outputId="O55">total_cases</output>
+        </merge>
+        <merge>
+            <input inputId="I63" sourceId="S1">new_cases</input>
+            <input inputId="I64" sourceId="S2">new_cases</input>
+            <output outputId="O56">new_cases</output>
+        </merge>
+        <merge>
+            <input inputId="I65" sourceId="S1">total_deaths</input>
+            <input inputId="I66" sourceId="S2">total_deaths</input>
+            <output outputId="O57">total_deaths</output>
+        </merge>
+        <merge>
+            <input inputId="I67" sourceId="S1">new_deaths</input>
+            <input inputId="I68" sourceId="S2">new_deaths</input>
+            <output outputId="O58">new_deaths</output>
+        </merge>
+        <merge>
+            <input inputId="I69" sourceId="S1">tests_per_case</input>
+            <input inputId="I70" sourceId="S2">tests_per_case</input>
+            <output outputId="O59">tests_per_case</output>
+        </merge>
+        <merge>
+            <input inputId="I71" >O333</input>
+            <input inputId="I72" >O334</input>
+            <output outputId="O60">tests_units</output>
+        </merge>
+        
+       
+
+    </transformations>
+
+    <load>
+         
+        <db-load>
+            <database>MYSQL</database>
+            <hostname>localhost</hostname>
+            <username>root</username>
+            <password>Bhavesh@123</password>
+            <database-name>CORONA_DB</database-name>
+            <table-name>info</table-name>
+            <output>
+                <field>
+                    <field-name>iso_code</field-name>
+                    <field-source>O51</field-source>
+                </field> 
+                <field>
+                    <field-name>continent</field-name>
+                    <field-source>O52</field-source>
+                </field>
+                <field>
+                    <field-name>loc</field-name>
+                    <field-source>O53</field-source>
+                </field>
+                <field>
+                    <field-name>death_newcases_percent</field-name>
+                    <field-source>O54</field-source>
+                </field>
+                <field>
+                    <field-name>total_cases</field-name>
+                    <field-source>O55</field-source>
+                </field>
+                <field>
+                    <field-name>new_cases</field-name>
+                    <field-source>O56</field-source>
+                </field>
+                <field>
+                    <field-name>total_deaths</field-name>
+                    <field-source>O57</field-source>
+                </field>
+                <field>
+                    <field-name>new_deaths</field-name>
+                    <field-source>O58</field-source>
+                </field>
+                
+                <field>
+                    <field-name>tests_per_case</field-name>
+                    <field-source>O59</field-source>
+                </field>
+                 <field>
+                     <field-name>tests_units</field-name>
+                     <field-source>O60</field-source>
+                 </field>
+            </output>
+        </db-load>    
+    </load>
+</etl>

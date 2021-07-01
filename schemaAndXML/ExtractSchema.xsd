@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema  xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+            xmlns="http://www.etl.org/etlSchema"
+            targetNamespace="http://www.etl.org/etlSchema"
+            elementFormDefault="qualified">
+
+<!--These are different sources used for extract operation -->
+<xs:element name="db-extract">
+    <xs:complexType>
+        <xs:sequence>
+            <xs:element name="database" type="extract-databases"></xs:element>
+            <xs:element name="hostname" type="xs:string"></xs:element>
+            <xs:element name="username" type="xs:string"></xs:element>
+            <xs:element name="password" type="xs:string"></xs:element>
+            <xs:element name="table-name" type="xs:string"></xs:element>
+            <xs:element name="windowsize" type="xs:int"></xs:element>
+        </xs:sequence>
+        <xs:attribute name="sourceId" type="xs:ID" use="required"></xs:attribute>
+    </xs:complexType>
+</xs:element>
+
+<xs:element name="csv-extract">
+  <xs:complexType>
+    <xs:sequence>
+      <xs:element name='file-path' type="xs:string"></xs:element>
+      <xs:element name="separator" type="xs:string"></xs:element>
+      <xs:element name="windowsize" type="xs:int"></xs:element>
+    </xs:sequence>
+    <xs:attribute name="sourceId" type="xs:ID" use="required"></xs:attribute>
+  </xs:complexType>
+</xs:element>
+
+<xs:simpleType name="extract-databases">
+  <xs:restriction base="xs:string">
+    <xs:enumeration value="MYSQL"></xs:enumeration>
+  </xs:restriction>
+</xs:simpleType>
+
+
+</xs:schema>
