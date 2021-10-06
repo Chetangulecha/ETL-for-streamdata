@@ -1,0 +1,5 @@
+ETL for stream data
+• Performed ETL on stream data and output is stored in data warehouse (MySQL)
+• User inputs like source data, window size, destination , transformations are XML configured.
+• Input configuration (XML) is parsed using xml parser and transformations like mapping, conversion,
+lookup and marge are implemented
